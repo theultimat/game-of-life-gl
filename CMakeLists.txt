@@ -19,7 +19,9 @@ glad_add_library(glad REPRODUCIBLE API gl:core=3.3 LOCATION ${GLAD_OUT_DIR})
 add_executable(gol
     src/assert.c
     src/canvas.c
+    src/io.c
     src/main.c
+    src/program.c
     src/window.c
 )
 
