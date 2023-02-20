@@ -7,7 +7,12 @@ find_package(OpenGL 3.3 REQUIRED)
 
 set(GLAD_OUT_DIR ${CMAKE_BINARY_DIR}/gladsources)
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(3rdparty/glad/cmake)
+add_subdirectory(3rdparty/glfw)
 
 glad_add_library(glad REPRODUCIBLE API gl:core=3.3 LOCATION ${GLAD_OUT_DIR})
 
@@ -28,6 +33,7 @@ target_include_directories(gol PRIVATE
 )
 
 target_link_libraries(gol PRIVATE
+    glfw
     glad
     OpenGL::GL
 )
