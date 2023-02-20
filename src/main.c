@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "canvas.h"
 #include "window.h"
 
 
@@ -11,6 +12,9 @@ int main(void)
 {
     GolWindow window;
     gol_create_window(&window, 1280, 720);
+
+    GolCanvas canvas;
+    gol_create_canvas(&canvas);
 
     double previous_time = glfwGetTime();
     double latency_time = 0.0;
@@ -35,6 +39,7 @@ int main(void)
         glfwSwapBuffers(window.window);
     }
 
+    gol_destroy_canvas(&canvas);
     gol_destroy_window(&window);
 
     return 0;
