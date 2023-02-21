@@ -22,6 +22,7 @@ add_executable(gol
     src/io.c
     src/main.c
     src/program.c
+    src/state.c
     src/window.c
 )
 

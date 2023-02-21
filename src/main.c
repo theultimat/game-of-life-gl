@@ -8,6 +8,7 @@
 #include "canvas.h"
 #include "io.h"
 #include "program.h"
+#include "state.h"
 #include "window.h"
 
 
@@ -55,6 +56,9 @@ int main(void)
         free(vss);
     }
 
+    GolState state;
+    gol_create_state(&state, window.width, window.height);
+
     double previous_time = glfwGetTime();
     double latency_time = 0.0;
 
@@ -78,6 +82,7 @@ int main(void)
         glfwSwapBuffers(window.window);
     }
 
+    gol_destroy_state(&state);
     gol_destroy_program(&program);
     gol_destroy_canvas(&canvas);
     gol_destroy_window(&window);
