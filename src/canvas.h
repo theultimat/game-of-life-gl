@@ -15,4 +15,6 @@ typedef struct
 void gol_create_canvas(GolCanvas *canvas);
 void gol_destroy_canvas(GolCanvas *canvas);
 
+void gol_draw_canvas(const GolCanvas *canvas);
+
 #endif

@@ -54,3 +54,12 @@ void gol_destroy_canvas(GolCanvas *canvas)
         GOL_CHECK_GL();
     }
 }
+
+
+void gol_draw_canvas(const GolCanvas *canvas)
+{
+    glBindVertexArray(canvas->vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    GOL_CHECK_GL();
+}

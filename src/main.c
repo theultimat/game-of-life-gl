@@ -55,10 +55,7 @@ static void draw(
 
     GOL_CHECK_GL();
 
-    glBindVertexArray(canvas->vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    GOL_CHECK_GL();
+    gol_draw_canvas(canvas);
 }
 
 
