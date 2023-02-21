@@ -25,18 +25,23 @@ static GLubyte *create_initial_state(int width, int height)
     memset(data, 0, width * height);
 
     // For testing fill in a corner.
-    for (int y = 0; y < 100; ++y)
+    for (int y = 0; y < height / 2; ++y)
     {
         GLubyte *row = data + y * width;
 
-        for (int x = 0; x < 100; ++x)
-            row[x] = 1;
+        for (int x = 0; x < width / 2; ++x)
+            row[x] = 255;
     }
 
     return data;
 }
 
-static void draw(const GolWindow *window, const GolCanvas *canvas, const GolProgram *prog)
+static void draw(
+    const GolWindow *window,
+    const GolCanvas *canvas,
+    const GolState *state,
+    const GolProgram *prog,
+    GLint u_state_texture)
 {
     // Note - we don't need to do a clear as we're always going to be writing
     // to every pixel.
@@ -46,6 +51,7 @@ static void draw(const GolWindow *window, const GolCanvas *canvas, const GolProg
     GOL_CHECK_GL();
 
     glUseProgram(prog->name);
+    glUniform1i(u_state_texture, state->active);
 
     GOL_CHECK_GL();
 
@@ -65,6 +71,7 @@ int main(void)
     gol_create_canvas(&canvas);
 
     GolProgram program;
+    GLint u_state_texture;
 
     {
         char *vss = gol_load_string("../shaders/vs.glsl");
@@ -74,6 +81,9 @@ int main(void)
 
         free(fss);
         free(vss);
+
+        u_state_texture = glGetUniformLocation(program.name, "u_StateTexture");
+        GOL_ASSERT(u_state_texture >= 0);
     }
 
     GolState state;
@@ -104,7 +114,7 @@ int main(void)
             latency_time -= GOL_SECONDS_PER_TICK;
         }
 
-        draw(&window, &canvas, &program);
+        draw(&window, &canvas, &state, &program, u_state_texture);
         glfwSwapBuffers(window.window);
     }
 
