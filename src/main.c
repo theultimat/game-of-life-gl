@@ -13,7 +13,7 @@
 #include "window.h"
 
 
-#define GOL_TICKS_PER_SECOND (1.0)
+#define GOL_TICKS_PER_SECOND (4.0)
 #define GOL_SECONDS_PER_TICK (1.0 / GOL_TICKS_PER_SECOND)
 
 
