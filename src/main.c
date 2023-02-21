@@ -37,7 +37,6 @@ static GLubyte *create_initial_state(int width, int height)
 }
 
 static void draw(
-    const GolWindow *window,
     const GolCanvas *canvas,
     const GolState *state,
     const GolProgram *prog,
@@ -45,10 +44,6 @@ static void draw(
 {
     // Note - we don't need to do a clear as we're always going to be writing
     // to every pixel.
-
-    glViewport(0, 0, window->width, window->height);
-
-    GOL_CHECK_GL();
 
     glUseProgram(prog->name);
     glUniform1i(u_state_texture, state->active);
@@ -107,11 +102,11 @@ int main(void)
 
         while (latency_time >= GOL_SECONDS_PER_TICK)
         {
-            // TODO Update state.
+            gol_tick_state(&state, &canvas);
             latency_time -= GOL_SECONDS_PER_TICK;
         }
 
-        draw(&window, &canvas, &state, &program, u_state_texture);
+        draw(&canvas, &state, &program, u_state_texture);
         glfwSwapBuffers(window.window);
     }
 

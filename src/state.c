@@ -53,6 +53,9 @@ void gol_create_state(GolState *state, int width, int height, const GLubyte *ini
 
         free(fss);
         free(vss);
+
+        state->u_prev_state = glGetUniformLocation(state->program.name, "u_PreviousState");
+        GOL_ASSERT(state->u_prev_state >= 0);
     }
 
     glGenFramebuffers(2, state->fbos);
@@ -81,4 +84,27 @@ void gol_destroy_state(GolState *state)
     glDeleteTextures(2, state->textures);
 
     GOL_CHECK_GL();
+}
+
+
+void gol_tick_state(GolState *state, const GolCanvas *canvas)
+{
+    // Toggle between which state is the target and which is the previous -
+    // simple double buffering logic.
+    state->active = !state->active;
+
+    // The update process is to draw the whole screen to an offscreen texture
+    // and use the previous state on the GPU to determine which cells live.
+    glUseProgram(state->program.name);
+    glUniform1i(state->u_prev_state, !state->active);
+
+    GOL_CHECK_GL();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, state->fbos[state->active]);
+
+    GOL_CHECK_GL();
+
+    gol_draw_canvas(canvas);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
