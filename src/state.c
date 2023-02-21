@@ -62,6 +62,16 @@ void gol_create_state(GolState *state, int width, int height, const GLubyte *ini
 
     init_framebuffer(state->fbos[0], state->textures[0], width, height, initial_state);
     init_framebuffer(state->fbos[1], state->textures[1], width, height, NULL);
+
+    // Bind textures to corresponding units for use with uniforms in the draw
+    // shader program.
+    for (int i = 0; i < 2; ++i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, state->textures[i]);
+
+        GOL_CHECK_GL();
+    }
 }
 
 void gol_destroy_state(GolState *state)
