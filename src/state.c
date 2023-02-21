@@ -6,7 +6,7 @@
 #include "state.h"
 
 
-static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height)
+static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height, const GLubyte *data)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -15,7 +15,7 @@ static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height)
 
     // We only need a single channel for the data - really we only need one bit
     // for a cell being on or off, but this will do for now.
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -41,7 +41,7 @@ static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height)
 }
 
 
-void gol_create_state(GolState *state, int width, int height)
+void gol_create_state(GolState *state, int width, int height, const GLubyte *initial_state)
 {
     memset(state, 0, sizeof *state);
 
@@ -60,8 +60,8 @@ void gol_create_state(GolState *state, int width, int height)
 
     GOL_CHECK_GL();
 
-    for (int i = 0; i < 2; ++i)
-        init_framebuffer(state->fbos[i], state->textures[i], width, height);
+    init_framebuffer(state->fbos[0], state->textures[0], width, height, initial_state);
+    init_framebuffer(state->fbos[1], state->textures[1], width, height, NULL);
 }
 
 void gol_destroy_state(GolState *state)

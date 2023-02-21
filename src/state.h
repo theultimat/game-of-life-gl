@@ -16,7 +16,7 @@ typedef struct
 } GolState;
 
 
-void gol_create_state(GolState *state, int width, int height);
+void gol_create_state(GolState *state, int width, int height, const GLubyte *initial_state);
 void gol_destroy_state(GolState *state);
 
 #endif

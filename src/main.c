@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -15,6 +16,25 @@
 #define GOL_TICKS_PER_SECOND (1.0)
 #define GOL_SECONDS_PER_TICK (1.0 / GOL_TICKS_PER_SECOND)
 
+
+static GLubyte *create_initial_state(int width, int height)
+{
+    GLubyte *data = malloc(width * height);
+    GOL_ASSERT(data);
+
+    memset(data, 0, width * height);
+
+    // For testing fill in a corner.
+    for (int y = 0; y < 100; ++y)
+    {
+        GLubyte *row = data + y * width;
+
+        for (int x = 0; x < 100; ++x)
+            row[x] = 1;
+    }
+
+    return data;
+}
 
 static void draw(const GolWindow *window, const GolCanvas *canvas, const GolProgram *prog)
 {
@@ -57,7 +77,13 @@ int main(void)
     }
 
     GolState state;
-    gol_create_state(&state, window.width, window.height);
+    {
+        GLubyte *init = create_initial_state(window.width, window.height);
+
+        gol_create_state(&state, window.width, window.height, init);
+
+        free(init);
+    }
 
     double previous_time = glfwGetTime();
     double latency_time = 0.0;
