@@ -120,8 +120,6 @@ int main(int argc, char *argv[])
     float zoom;
     parse_args(argc, argv, &pbm_path, &zoom);
 
-    printf("%f\n", zoom);
-
     GolWindow window;
     gol_create_window(&window, 1280, 720);
 
