@@ -15,6 +15,7 @@ typedef struct
     GLuint textures[2];
     GLuint active;
     GLint u_prev_state;
+    GLint u_state_size;
     GLuint width;
     GLuint height;
 } GolState;

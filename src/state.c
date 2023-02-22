@@ -23,12 +23,6 @@ static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height, 
 
     GOL_CHECK_GL();
 
-    // We want the world to wrap around so configure the border appropriately.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    GOL_CHECK_GL();
-
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
     GOL_CHECK_GL();
@@ -60,6 +54,9 @@ void gol_create_state(GolState *state, int width, int height, float zoom, const 
 
         state->u_prev_state = glGetUniformLocation(state->program.name, "u_PreviousState");
         GOL_ASSERT(state->u_prev_state >= 0);
+
+        state->u_state_size = glGetUniformLocation(state->program.name, "u_StateSize");
+        GOL_ASSERT(state->u_state_size >= 0);
     }
 
     glGenFramebuffers(2, state->fbos);
@@ -109,6 +106,7 @@ void gol_tick_state(GolState *state, const GolCanvas *canvas)
     // and use the previous state on the GPU to determine which cells live.
     glUseProgram(state->program.name);
     glUniform1i(state->u_prev_state, !state->active);
+    glUniform2i(state->u_state_size, state->width, state->height);
 
     GOL_CHECK_GL();
 

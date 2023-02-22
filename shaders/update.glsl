@@ -3,6 +3,7 @@
 out vec4 fsOut_Colour;
 
 uniform sampler2D u_PreviousState;
+uniform ivec2 u_StateSize;
 
 void main()
 {
@@ -23,7 +24,8 @@ void main()
     int total = 0;
     for (int i = 0; i < 8; ++i)
     {
-        float cell = texelFetch(u_PreviousState, pos + offsets[i], 0).r;
+        ivec2 coords = (pos + offsets[i] + u_StateSize) % u_StateSize;
+        float cell = texelFetch(u_PreviousState, coords, 0).r;
         total += int(cell);
     }
 
