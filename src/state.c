@@ -38,8 +38,8 @@ static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height, 
 
 void gol_create_state(GolState *state, int width, int height, float zoom, const GLubyte *initial_state)
 {
-    width = ceilf(width / zoom);
-    height = ceilf(height / zoom);
+    width = gol_calculate_state_width(width, zoom);
+    height = gol_calculate_state_height(height, zoom);
 
     memset(state, 0, sizeof *state);
 
@@ -117,4 +117,20 @@ void gol_tick_state(GolState *state, const GolCanvas *canvas)
     gol_draw_canvas(canvas);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
+int gol_calculate_state_width(int width, float zoom)
+{
+    // Each row of a texture must be aligned to a 4B boundary, so if we aren't
+    // round up to the next boundary.
+    width = ceilf(width / zoom);
+    width = (width + 3) & ~3;
+
+    return width;
+}
+
+int gol_calculate_state_height(int height, float zoom)
+{
+    return ceilf(height / zoom);
 }

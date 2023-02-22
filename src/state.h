@@ -26,4 +26,8 @@ void gol_destroy_state(GolState *state);
 
 void gol_tick_state(GolState *state, const GolCanvas *canvas);
 
+
+int gol_calculate_state_width(int width, float zoom);
+int gol_calculate_state_height(int height, float zoom);
+
 #endif

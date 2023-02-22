@@ -44,8 +44,8 @@ static void parse_args(int argc, char *argv[], const char **path, float *zoom)
 
 static GLubyte *create_initial_state(const char *path, int width, int height, float zoom)
 {
-    width = ceilf(width / zoom);
-    height = ceilf(height / zoom);
+    width = gol_calculate_state_width(width, zoom);
+    height = gol_calculate_state_height(height, zoom);
 
     GLubyte *data = malloc(width * height);
     GOL_ASSERT(data);
