@@ -40,7 +40,6 @@ void gol_create_window(GolWindow *window, int width, int height)
     GOL_ASSERT_MSG(glad_okay, "Failed to initialise GLAD.");
 
     glfwGetFramebufferSize(window->window, &window->width, &window->height);
-    glViewport(0, 0, window->width, window->height);
     GOL_CHECK_GL();
 }
 

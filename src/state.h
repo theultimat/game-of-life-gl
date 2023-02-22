@@ -15,10 +15,12 @@ typedef struct
     GLuint textures[2];
     GLuint active;
     GLint u_prev_state;
+    GLuint width;
+    GLuint height;
 } GolState;
 
 
-void gol_create_state(GolState *state, int width, int height, const GLubyte *initial_state);
+void gol_create_state(GolState *state, int width, int height, float zoom, const GLubyte *initial_state);
 void gol_destroy_state(GolState *state);
 
 void gol_tick_state(GolState *state, const GolCanvas *canvas);

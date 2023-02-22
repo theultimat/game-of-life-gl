@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,8 +42,11 @@ static void parse_args(int argc, char *argv[], const char **path, float *zoom)
     }
 }
 
-static GLubyte *create_initial_state(const char *path, int width, int height)
+static GLubyte *create_initial_state(const char *path, int width, int height, float zoom)
 {
+    width = ceilf(width / zoom);
+    height = ceilf(height / zoom);
+
     GLubyte *data = malloc(width * height);
     GOL_ASSERT(data);
 
@@ -87,15 +91,22 @@ static void draw(
     const GolState *state,
     const GolProgram *prog,
     GLint u_state_texture,
-    GLint u_height
+    GLint u_height,
+    GLint u_zoom,
+    float zoom
 )
 {
     // Note - we don't need to do a clear as we're always going to be writing
     // to every pixel.
 
+    glViewport(0, 0, window->width, window->height);
+
+    GOL_CHECK_GL();
+
     glUseProgram(prog->name);
     glUniform1i(u_state_texture, state->active);
     glUniform1i(u_height, window->height);
+    glUniform1f(u_zoom, zoom);
 
     GOL_CHECK_GL();
 
@@ -120,6 +131,7 @@ int main(int argc, char *argv[])
     GolProgram program;
     GLint u_state_texture;
     GLint u_height;
+    GLint u_zoom;
 
     {
         char *vss = gol_load_string("../shaders/vs.glsl");
@@ -135,13 +147,16 @@ int main(int argc, char *argv[])
 
         u_height = glGetUniformLocation(program.name, "u_Height");
         GOL_ASSERT(u_height >= 0);
+
+        u_zoom = glGetUniformLocation(program.name, "u_Zoom");
+        GOL_ASSERT(u_zoom >= 0);
     }
 
     GolState state;
     {
-        GLubyte *init = create_initial_state(pbm_path, window.width, window.height);
+        GLubyte *init = create_initial_state(pbm_path, window.width, window.height, zoom);
 
-        gol_create_state(&state, window.width, window.height, init);
+        gol_create_state(&state, window.width, window.height, zoom, init);
 
         free(init);
     }
@@ -165,7 +180,7 @@ int main(int argc, char *argv[])
             latency_time -= GOL_SECONDS_PER_TICK;
         }
 
-        draw(&window, &canvas, &state, &program, u_state_texture, u_height);
+        draw(&window, &canvas, &state, &program, u_state_texture, u_height, u_zoom, zoom);
         glfwSwapBuffers(window.window);
     }
 

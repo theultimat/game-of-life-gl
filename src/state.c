@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,8 +42,11 @@ static void init_framebuffer(GLuint fbo, GLuint texture, int width, int height, 
 }
 
 
-void gol_create_state(GolState *state, int width, int height, const GLubyte *initial_state)
+void gol_create_state(GolState *state, int width, int height, float zoom, const GLubyte *initial_state)
 {
+    width = ceilf(width / zoom);
+    height = ceilf(height / zoom);
+
     memset(state, 0, sizeof *state);
 
     {
@@ -75,6 +79,9 @@ void gol_create_state(GolState *state, int width, int height, const GLubyte *ini
 
         GOL_CHECK_GL();
     }
+
+    state->width = width;
+    state->height = height;
 }
 
 void gol_destroy_state(GolState *state)
@@ -92,6 +99,11 @@ void gol_tick_state(GolState *state, const GolCanvas *canvas)
     // Toggle between which state is the target and which is the previous -
     // simple double buffering logic.
     state->active = !state->active;
+
+    // Match viewport size to the state size.
+    glViewport(0, 0, state->width, state->height);
+
+    GOL_CHECK_GL();
 
     // The update process is to draw the whole screen to an offscreen texture
     // and use the previous state on the GPU to determine which cells live.
