@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -22,16 +23,10 @@ static GLubyte *create_initial_state(int width, int height)
     GLubyte *data = malloc(width * height);
     GOL_ASSERT(data);
 
-    memset(data, 0, width * height);
+    srand(time(NULL));
 
-    // For testing fill in a corner.
-    for (int y = 0; y < height / 2; ++y)
-    {
-        GLubyte *row = data + y * width;
-
-        for (int x = 0; x < width / 2; ++x)
-            row[x] = 255;
-    }
+    for (int i = 0; i < width * height; ++i)
+        data[i] = (rand() % 2) * 255;
 
     return data;
 }
