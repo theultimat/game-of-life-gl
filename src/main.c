@@ -18,15 +18,42 @@
 #define GOL_SECONDS_PER_TICK (1.0 / GOL_TICKS_PER_SECOND)
 
 
-static GLubyte *create_initial_state(int width, int height)
+static GLubyte *create_initial_state(int argc, char *argv[], int width, int height)
 {
     GLubyte *data = malloc(width * height);
     GOL_ASSERT(data);
 
-    srand(time(NULL));
+    memset(data, 0, width * height);
 
-    for (int i = 0; i < width * height; ++i)
-        data[i] = (rand() % 2) * 255;
+    // If we don't pass a path or the option is --random use a random initial
+    // state, otherwise load the PBM file and center it in the window.
+    if (argc < 2 || !strcmp(argv[1], "--random"))
+    {
+        srand(time(NULL));
+
+        for (int i = 0; i < width * height; ++i)
+            data[i] = (rand() % 2) * 255;
+    }
+    else
+    {
+        GolPbm pbm;
+        gol_load_pbm(&pbm, argv[1]);
+
+        GOL_ASSERT(pbm.width <= width && pbm.height <= height);
+
+        int x_offset = (width - pbm.width) / 2;
+        int y_offset = (height - pbm.height) / 2;
+
+        for (int y = 0; y < pbm.height; ++y)
+        {
+            const GLubyte *src = pbm.data + y * pbm.width;
+            GLubyte *dst = data + (y + y_offset) * width + x_offset;
+
+            memcpy(dst, src, pbm.width);
+        }
+
+        free(pbm.data);
+    }
 
     return data;
 }
@@ -53,7 +80,7 @@ static void draw(
 }
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
     GolWindow window;
     gol_create_window(&window, 1280, 720);
@@ -83,7 +110,7 @@ int main(void)
 
     GolState state;
     {
-        GLubyte *init = create_initial_state(window.width, window.height);
+        GLubyte *init = create_initial_state(argc, argv, window.width, window.height);
 
         gol_create_state(&state, window.width, window.height, init);
 
