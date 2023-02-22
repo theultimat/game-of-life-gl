@@ -18,7 +18,30 @@
 #define GOL_SECONDS_PER_TICK (1.0 / GOL_TICKS_PER_SECOND)
 
 
-static GLubyte *create_initial_state(int argc, char *argv[], int width, int height)
+static void parse_args(int argc, char *argv[], const char **path, float *zoom)
+{
+    // Set default values.
+    *path = NULL;
+    *zoom = 1.0f;
+
+    for (int i = 1; i < argc; ++i)
+    {
+        if (!strcmp(argv[i], "--zoom"))
+        {
+            ++i;
+            GOL_ASSERT_MSG(i < argc, "--zoom expects an argument");
+
+            *zoom = strtof(argv[i], NULL);
+            GOL_ASSERT_MSG(*zoom >= 1.0f, "--zoom must be >= 1");
+        }
+        else
+        {
+            *path = argv[i];
+        }
+    }
+}
+
+static GLubyte *create_initial_state(const char *path, int width, int height)
 {
     GLubyte *data = malloc(width * height);
     GOL_ASSERT(data);
@@ -27,7 +50,7 @@ static GLubyte *create_initial_state(int argc, char *argv[], int width, int heig
 
     // If we don't pass a path or the option is --random use a random initial
     // state, otherwise load the PBM file and center it in the window.
-    if (argc < 2 || !strcmp(argv[1], "--random"))
+    if (!path || !strcmp(path, "--random"))
     {
         srand(time(NULL));
 
@@ -37,7 +60,7 @@ static GLubyte *create_initial_state(int argc, char *argv[], int width, int heig
     else
     {
         GolPbm pbm;
-        gol_load_pbm(&pbm, argv[1]);
+        gol_load_pbm(&pbm, path);
 
         GOL_ASSERT(pbm.width <= width && pbm.height <= height);
 
@@ -82,6 +105,12 @@ static void draw(
 
 int main(int argc, char *argv[])
 {
+    const char *pbm_path;
+    float zoom;
+    parse_args(argc, argv, &pbm_path, &zoom);
+
+    printf("%f\n", zoom);
+
     GolWindow window;
     gol_create_window(&window, 1280, 720);
 
@@ -110,7 +139,7 @@ int main(int argc, char *argv[])
 
     GolState state;
     {
-        GLubyte *init = create_initial_state(argc, argv, window.width, window.height);
+        GLubyte *init = create_initial_state(pbm_path, window.width, window.height);
 
         gol_create_state(&state, window.width, window.height, init);
 
