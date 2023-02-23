@@ -15,15 +15,12 @@
 #include "window.h"
 
 
-#define GOL_TICKS_PER_SECOND (4.0)
-#define GOL_SECONDS_PER_TICK (1.0 / GOL_TICKS_PER_SECOND)
-
-
-static void parse_args(int argc, char *argv[], const char **path, float *zoom)
+static void parse_args(int argc, char *argv[], const char **path, float *zoom, float *tick_rate)
 {
     // Set default values.
     *path = NULL;
     *zoom = 1.0f;
+    *tick_rate = 4.0f;
 
     for (int i = 1; i < argc; ++i)
     {
@@ -34,6 +31,21 @@ static void parse_args(int argc, char *argv[], const char **path, float *zoom)
 
             *zoom = strtof(argv[i], NULL);
             GOL_ASSERT_MSG(*zoom >= 1.0f, "--zoom must be >= 1");
+        }
+        else if (!strcmp(argv[i], "--tick-rate"))
+        {
+            ++i;
+            GOL_ASSERT_MSG(i < argc, "--tick-rate expects an argument");
+
+            if (!strcmp(argv[i], "unlocked"))
+            {
+                *tick_rate = 0.0f;
+            }
+            else
+            {
+                *tick_rate = strtof(argv[i], NULL);
+                GOL_ASSERT_MSG(*tick_rate > 0, "--tick-rate must be > 0");
+            }
         }
         else
         {
@@ -117,8 +129,11 @@ static void draw(
 int main(int argc, char *argv[])
 {
     const char *pbm_path;
-    float zoom;
-    parse_args(argc, argv, &pbm_path, &zoom);
+    float zoom, tick_rate, seconds_per_tick;
+    parse_args(argc, argv, &pbm_path, &zoom, &tick_rate);
+
+    if (tick_rate > 0)
+        seconds_per_tick = 1.0f / tick_rate;
 
     GolWindow window;
     gol_create_window(&window, 1280, 720);
@@ -172,10 +187,17 @@ int main(int argc, char *argv[])
 
         glfwPollEvents();
 
-        while (latency_time >= GOL_SECONDS_PER_TICK)
+        if (!tick_rate)
         {
             gol_tick_state(&state, &canvas);
-            latency_time -= GOL_SECONDS_PER_TICK;
+        }
+        else
+        {
+            while (latency_time >= seconds_per_tick)
+            {
+                gol_tick_state(&state, &canvas);
+                latency_time -= seconds_per_tick;
+            }
         }
 
         draw(&window, &canvas, &state, &program, u_state_texture, u_height, u_zoom, zoom);
