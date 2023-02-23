@@ -129,7 +129,7 @@ static void draw(
 int main(int argc, char *argv[])
 {
     const char *pbm_path;
-    float zoom, tick_rate, seconds_per_tick;
+    float zoom, tick_rate, seconds_per_tick = 0.0f;
     parse_args(argc, argv, &pbm_path, &zoom, &tick_rate);
 
     if (tick_rate > 0)
