@@ -65,7 +65,7 @@ void gol_load_pbm(GolPbm *pbm, const char *path)
     rd_ptr += 3;
 
     unsigned char *wr_ptr = NULL;
-    int bytes_read = 0;
+    int bytes_read = 0, data_size = 0;
 
     // After P1 we expect: width, height, data.
     PbmState state = PBM_PARSE_WIDTH;
@@ -117,10 +117,10 @@ void gol_load_pbm(GolPbm *pbm, const char *path)
 
             // Once we've parsed width and height we can allocate the data
             // buffer.
-            int size = pbm->width * pbm->height;
-            GOL_ASSERT(size > 0);
+            data_size = pbm->width * pbm->height;
+            GOL_ASSERT(data_size > 0);
 
-            pbm->data = malloc(size);
+            pbm->data = malloc(data_size);
             GOL_ASSERT(pbm->data);
             wr_ptr = pbm->data;
 
@@ -136,8 +136,6 @@ void gol_load_pbm(GolPbm *pbm, const char *path)
             GOL_ASSERT_MSG(false, "Bad pbm parse state %d.", state);
         }
     }
-
-    int data_size = pbm->width * pbm->height;
 
     GOL_ASSERT_MSG(pbm->width > 0, "Zero width in pbm %s!", path);
     GOL_ASSERT_MSG(pbm->height > 0, "Zero height in pbm %s!", path);
